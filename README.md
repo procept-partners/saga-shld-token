@@ -1,37 +1,14 @@
 # SHLD_Token
+The SHLD Token is a governance system that enables token-based voting and proposal management. It implements a non-transferable token system where token holders can participate in governance decisions through proposal creation and voting.
 
-cargo-near-new-project-description
+## Features
+- Non-transferable token system
+- Token-based governance
+- Proposal creation and management
+- Democratic voting system
+- Role-based governance structure
 
-## How to Build Locally?
-
-Install [`cargo-near`](https://github.com/near/cargo-near) and run:
-
-```bash
-cargo near build
-```
-
-## How to Test Locally?
-
-```bash
-cargo test
-```
-
-## How to Deploy?
-
-Deployment is automated with GitHub Actions CI/CD pipeline.
-To deploy manually, install [`cargo-near`](https://github.com/near/cargo-near) and run:
-
-```bash
-cargo near deploy <account-id>
-```
-
-## Useful Links
-
-- [cargo-near](https://github.com/near/cargo-near) - NEAR smart contract development toolkit for Rust
-- [near CLI](https://near.cli.rs) - Interact with NEAR blockchain from command line
-- [NEAR Rust SDK Documentation](https://docs.near.org/sdk/rust/introduction)
-- [NEAR Documentation](https://docs.near.org)
-- [NEAR StackOverflow](https://stackoverflow.com/questions/tagged/nearprotocol)
-- [NEAR Discord](https://near.chat)
-- [NEAR Telegram Developers Community Group](https://t.me/neardev)
-- NEAR DevHub: [Telegram](https://t.me/neardevhub), [Twitter](https://twitter.com/neardevhub)
+## Deployed
+Transaction ID: 8J1cAxc6vk9xsn5NnSj8sCBmm51T8ygGc6ieDSQWcZqB
+To see the transaction in the transaction explorer, please open this url in your browser:
+https://explorer.testnet.near.org/transactions/8J1cAxc6vk9xsn5NnSj8sCBmm51T8ygGc6ieDSQWcZqB
