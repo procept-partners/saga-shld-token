@@ -22,6 +22,21 @@ pub struct SHLDContract {
     next_proposal_id: u64,
 }
 
+#[near_bindgen]
+#[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
+pub struct SHLDContract {
+    tokens: LookupMap<AccountId, Token>,          // Mapping from AccountId to Token data
+    token_owners: UnorderedSet<AccountId>,        // Set of account IDs that own tokens
+    proposals: UnorderedMap<u64, Proposal>,       // Mapping of proposal IDs to proposal details
+    next_proposal_id: u64,                        // Tracks the next available ID for proposals
+    members_registry: UnorderedSet<String>,       // Set to track unique cooperative member IDs by cooperative_id
+    next_nft_number: u64,                         // Tracks the next NFT number in the overall series for uniqueness
+    current_minting_round: u64,                   // Tracks the minting round for the SHLD token
+    minting_order_in_round: u64,                  // Tracks the order of each token within the current minting round
+
+}
+
+
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Token {
@@ -31,11 +46,78 @@ pub struct Token {
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, PartialEq, Debug)]
 #[serde(crate = "near_sdk::serde")]
+// Replace the simplified TokenMetadata with this version in your code
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[serde(crate = "near_sdk::serde")]
 pub struct TokenMetadata {
-    title: Option<String>,
-    description: Option<String>,
-    governance_role: String,
+    ticker_title: String,                  // Fixed as "SHLD" for token type
+    avatar_name: Option<String>,           // Unique display name for the token owner
+    profile_description: Option<String>,   // Description specific to the token owner's profile
+    governance_role: String,               // User's primary role in governance (e.g., "Member", "Admin")
+    profile_image_url: Option<String>,     // URL or IPFS hash for profile image
+
+    // Fields for Uniqueness and Verification
+    cooperative_id: String,                // Unique cooperative identifier for each member
+    did: Option<String>,                   // Optional decentralized identifier (DID) for identity management
+    verification_status: String,           // Tracks verification status or attestation info
+    minting_timestamp: u64,                // Timestamp of minting for record-keeping
+    nft_number: u64,                       // Unique NFT identifier in the overall series
+    minting_round: u64,                    // Identifier for the minting round or batch
+    minting_order_in_round: u64,           // Order of the token within the current minting round
+    unique_hash: String,                   // Unique hash identifier for the token
+    
+    // New Field
+    member_titles: Vec<String>,            // Array of titles awarded to the member
 }
+
+// Add the following functions to the SHLDContract implementation in your code
+
+// Update avatar_name
+pub fn update_avatar_name(&mut self, account_id: AccountId, new_avatar_name: String) {
+    let mut token = self.tokens.get(&account_id).expect("Token does not exist for this account");
+    token.metadata.avatar_name = Some(new_avatar_name);
+    self.tokens.insert(&account_id, &token);
+}
+
+// Update profile_description
+pub fn update_profile_description(&mut self, account_id: AccountId, new_description: String) {
+    let mut token = self.tokens.get(&account_id).expect("Token does not exist for this account");
+    token.metadata.profile_description = Some(new_description);
+    self.tokens.insert(&account_id, &token);
+}
+
+// Update profile_image_url
+pub fn update_profile_image_url(&mut self, account_id: AccountId, new_image_url: String) {
+    let mut token = self.tokens.get(&account_id).expect("Token does not exist for this account");
+    token.metadata.profile_image_url = Some(new_image_url);
+    self.tokens.insert(&account_id, &token);
+}
+
+// Update decentralized identifier (DID)
+pub fn update_did(&mut self, account_id: AccountId, new_did: String) {
+    let mut token = self.tokens.get(&account_id).expect("Token does not exist for this account");
+    token.metadata.did = Some(new_did);
+    self.tokens.insert(&account_id, &token);
+}
+
+// Add a new title to member_titles
+pub fn add_member_title(&mut self, account_id: AccountId, new_title: String) {
+    let mut token = self.tokens.get(&account_id).expect("Token does not exist for this account");
+    token.metadata.member_titles.push(new_title);
+    self.tokens.insert(&account_id, &token);
+}
+
+// Add this function to the SHLDContract implementation in your code
+
+// Function to revoke an NFT (Only contract owner or treasury)
+pub fn revoke_nft(&mut self, account_id: AccountId) {
+    require!(env::predecessor_account_id() == env::current_account_id(), "Only the contract owner can revoke NFTs");
+
+    let token = self.tokens.remove(&account_id).expect("Token does not exist for this account");
+    self.token_owners.remove(&account_id);
+    self.members_registry.remove(&token.metadata.cooperative_id);
+}
+
 
 #[derive(BorshDeserialize, BorshSerialize)]
 //#[serde(crate = "near_sdk::serde")]
@@ -83,6 +165,11 @@ impl SHLDContract {
             proposals: UnorderedMap::new(StorageKey::Proposals),
             next_proposal_id: 0,
         }
+    }
+
+    // Function to generate a unique hash for each NFT using cooperative ID and NFT number
+    fn generate_unique_hash(&self, cooperative_id: &String, nft_number: u64) -> String {
+        format!("{}-{}", cooperative_id, nft_number)
     }
 
     pub fn mint(&mut self, account_id: AccountId, metadata: TokenMetadata) {
