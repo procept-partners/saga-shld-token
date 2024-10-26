@@ -16,15 +16,6 @@ enum StorageKey {
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct SHLDContract {
-    tokens: LookupMap<AccountId, Token>,
-    token_owners: UnorderedSet<AccountId>,
-    proposals: UnorderedMap<u64, Proposal>,
-    next_proposal_id: u64,
-}
-
-#[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
-pub struct SHLDContract {
     tokens: LookupMap<AccountId, Token>,          // Mapping from AccountId to Token data
     token_owners: UnorderedSet<AccountId>,        // Set of account IDs that own tokens
     proposals: UnorderedMap<u64, Proposal>,       // Mapping of proposal IDs to proposal details
