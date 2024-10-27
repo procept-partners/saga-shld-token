@@ -4,16 +4,13 @@ use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, near_bindgen, require, AccountId, BorshStorageKey, PanicOnDefault};
 use near_sdk::json_types::U128;
 use ethabi::ethereum_types::H160;
-use serde_json::json;
-use crate::proposals::Proposal;
-use crate::voting::{VotingModule, ProposalStatus};
+use secp256k1::verify;
 
-// Define storage keys for collections
 #[derive(BorshStorageKey, BorshSerialize)]
 enum StorageKey {
     Tokens,
     TokenOwners,
-    AccountTokens, // New storage key for mapping accounts to token hashes
+    AccountTokens,
     Proposals,
     ProposalVoters { proposal_id: u64 },
 }
@@ -24,7 +21,7 @@ enum StorageKey {
 pub struct SHLDContract {
     tokens: LookupMap<AccountId, Token>,
     token_owners: UnorderedSet<AccountId>,
-    account_tokens: LookupMap<AccountId, String>, // Maps NEAR accounts to SHLD token hashes
+    account_tokens: LookupMap<AccountId, String>,
     proposals: UnorderedMap<u64, Proposal>,
     next_proposal_id: u64,
     members_registry: UnorderedSet<String>,
@@ -121,7 +118,6 @@ impl SHLDContract {
         self.account_tokens.insert(&account_id, &unique_hash); // Link NEAR account to SHLD token hash
     }
 
-    // Link NEAR account with SHLD token hash manually if needed
     pub fn link_shld_token(&mut self, account_id: AccountId, token_hash: String) {
         self.account_tokens.insert(&account_id, &token_hash);
     }
@@ -196,9 +192,8 @@ impl SHLDOwnershipVerifier {
         token_hash: String,
         signature: Vec<u8>
     ) -> bool {
-        // Perform verification here (omitted for brevity)
+        // Verification logic here (omitted for brevity)
         
-        // Emit an event upon successful verification
         env::log_str(&format!(
             "SHLDOwnershipVerified: {{ account_id: {}, token_hash: {} }}",
             account_id, token_hash
