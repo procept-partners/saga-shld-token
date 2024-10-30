@@ -10,5 +10,6 @@ The SHLD Token is a governance system that enables token-based voting and propos
 
 ## Deployed
 Transaction ID: 8J1cAxc6vk9xsn5NnSj8sCBmm51T8ygGc6ieDSQWcZqB
+
 To see the transaction in the transaction explorer, please open this url in your browser:
 https://explorer.testnet.near.org/transactions/8J1cAxc6vk9xsn5NnSj8sCBmm51T8ygGc6ieDSQWcZqB
